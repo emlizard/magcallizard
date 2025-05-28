@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inductor Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    .calculator {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 340px;
+    }
+    .calculator h1 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+    .field input {
+      width: 100%;
+      padding: 8px;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #1abc9c;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #16a085; }
+    .result {
+      margin-top: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .result p { margin: 6px 0; }
+    .formulas {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+    .formulas h2 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Inductor Calculator</h1>
+    <div class="field">
+      <label for="Le">Le (Mean length, mm)</label>
+      <input type="number" id="Le" placeholder="e.g., 50" step="any" />
+    </div>
+    <div class="field">
+      <label for="Ae">Ae (Cross-sectional area, mm²)</label>
+      <input type="number" id="Ae" placeholder="e.g., 100" step="any" />
+    </div>
+    <div class="field">
+      <label for="N">N (Turns)</label>
+      <input type="number" id="N" placeholder="e.g., 100" step="1" />
+    </div>
+    <div class="field">
+      <label for="mur">μr (Relative permeability)</label>
+      <input type="number" id="mur" placeholder="e.g., 1.0" step="any" />
+    </div>
+    <button onclick="calculate()">Calculate</button>
+    <div class="result" id="result"></div>
+    <div class="formulas">
+      <h2>Formulas Used</h2>
+      <p>$$V_e = L_e \times A_e$$</p>
+      <p>$$L = \mu_0 \mu_r \frac{N^2 A_e}{L_e}$$</p>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const mu0 = 4 * Math.PI * 1e-7; // Permeability of free space (H/m)
+      const Le_mm = parseFloat(document.getElementById('Le').value);
+      const Ae_mm2 = parseFloat(document.getElementById('Ae').value);
+      const N = parseInt(document.getElementById('N').value, 10);
+      const mur = parseFloat(document.getElementById('mur').value);
+
+      if (isNaN(Le_mm) || isNaN(Ae_mm2) || isNaN(N) || isNaN(mur)) {
+        alert('Please enter Le, Ae, N, and μr values.');
+        return;
+      }
+      // Convert units: mm -> m, mm² -> m²
+      const Le = Le_mm / 1000;
+      const Ae = Ae_mm2 / 1e6;
+      const mu = mu0 * mur;
+
+      // Compute volume in mm³
+      const Ve_m3 = Le * Ae;
+      const Ve_mm3 = Ve_m3 * 1e9;
+      // Compute inductance in µH
+      const L_H = (mu * N * N * Ae) / Le;
+      const L_uH = L_H * 1e6;
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p><strong>Ve (Volume):</strong> ${Ve_mm3.toLocaleString(undefined, {maximumFractionDigits: 3})} mm³</p>
+        <p><strong>L (Inductance):</strong> ${L_uH.toLocaleString(undefined, {maximumFractionDigits: 3})} µH</p>
+      `;
+      if (window.MathJax) MathJax.typesetPromise();
+    }
+  </script>
+</body>
+</html>
